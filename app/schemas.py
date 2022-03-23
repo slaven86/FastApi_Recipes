@@ -32,9 +32,9 @@ class Ingredient(BaseModel):
     name: str
 
 
+
     class Config:
         orm_mode = True
-
 
 
 
@@ -48,6 +48,11 @@ class RecipeCreate(BaseModel):
         orm_mode = True
 
 
+class Rate(BaseModel):
+    rate: float
+
+    class Config:
+        orm_mode = True
 
 
 class RecipeList(BaseModel):
@@ -58,16 +63,10 @@ class RecipeList(BaseModel):
     ingredients: List[Ingredient]
 
 
-    class Config:
-        orm_mode = True
-
-
-
-class Rate(BaseModel):
-    rate: float
 
     class Config:
         orm_mode = True
+
 
 
 
