@@ -22,7 +22,11 @@ def add_recipe(recipe: RecipeCreate, current_user: UserOut = Depends(get_current
     all_names = recipe.ingredients.split()
     ingredient = []
     for name in all_names:
-        ingredient.append(models.Ingredient(name=name))
+        result = db.query(models.Ingredient).filter(models.Ingredient.name == name).first()
+        if result is None:
+            ingredient.append(models.Ingredient(name=name))
+        else:
+            ingredient.append(result)
 
     new_recipe = models.Recipe(name=recipe.name,
                                description=recipe.description,
@@ -45,6 +49,7 @@ def get_all_recipes():
 @router.get('/recipes/{id}', status_code=status.HTTP_200_OK, response_model=RecipeList)
 def get_single_recipe(id: int, current_user: UserOut = Depends(get_current_user)):
     single_recipe = db.query(models.Recipe).filter(models.Recipe.id == id, models.Recipe.owner_id == current_user.id).first()
+
 
     if single_recipe:
         return single_recipe
@@ -83,14 +88,13 @@ def delete_recipe(id:int, current_user: UserOut = Depends(get_current_user)):
 
 @router.get('/top-ingredients', status_code=status.HTTP_200_OK, response_model=List[Ingredient])
 def get_top_five_ingredients():
-    top = db.query(models.Ingredient.name,
-                   func.count(models.Ingredient.name)).\
-                   group_by(models.Ingredient.name).\
-                   order_by(desc(func.count(models.Ingredient.name))).\
-                   limit(5).all()
 
-    return top
+    rez = db.query(models.Ingredient.name, func.count(models.Ingredient.name))\
+        .join(models.RecipeIngredient, models.RecipeIngredient.ingredient_id == models.Ingredient.id)\
+        .group_by(models.Ingredient.id).order_by(desc(func.count(models.Ingredient.name))).limit(5).all()
 
+
+    return rez
 
 
 @router.post('/recipes/{id}/rate', status_code=status.HTTP_201_CREATED)
@@ -114,15 +118,11 @@ def get_avg_rate(id: int, current_user: UserOut = Depends(get_current_user)):
     single_recipe = db.query(models.Recipe).filter(models.Recipe.id == id,
                                                    models.Recipe.owner_id == current_user.id).first()
 
-
-
-    avg = db.query(func.avg(models.Rating.rate).label('average')).filter(models.Rating.recipe_id == id).first()
-
-
     if single_recipe:
-        return avg
-
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Recipe does not exist!")
+        avg = db.query(func.avg(models.Rating.rate)).filter(models.Rating.recipe_id == id).first()
+        return Rate(rate=avg[0])
+    else:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Recipe does not exist!")
 
 
 
