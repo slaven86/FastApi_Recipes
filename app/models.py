@@ -2,16 +2,6 @@ from .database import Base
 from sqlalchemy import Column, Text, String, Integer, ForeignKey, Float
 from sqlalchemy.orm import relationship
 
-'''
-RecipeIngredient = Table('RecipeIngredient', Base.metadata,
-
-                         Column('recipe_id', Integer, ForeignKey('recipes.id')),
-                         Column('ingredient_Id', Integer, ForeignKey('ingredients.id'))
-
-                         )
-
-'''
-
 
 
 class User(Base):
@@ -35,7 +25,7 @@ class Recipe(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
     description = Column(Text, nullable=False)
-    owner_id = Column(Integer, ForeignKey("users.id"))
+    owner_id = Column(Integer, ForeignKey("users.id",  ondelete="CASCADE"))
 
     owner = relationship("User", back_populates="my_recipes")
     ingredients = relationship('Ingredient', secondary="recipe_ingredient", back_populates='recipes')
@@ -56,13 +46,14 @@ class Ingredient(Base):
 class RecipeIngredient(Base):
     __tablename__ = "recipe_ingredient"
 
-    recipe_id = Column(Integer, ForeignKey('recipes.id'), primary_key=True)
-    ingredient_id = Column(Integer, ForeignKey('ingredients.id'), primary_key=True)
+    recipe_id = Column(Integer, ForeignKey('recipes.id',  ondelete="CASCADE"), primary_key=True)
+    ingredient_id = Column(Integer, ForeignKey('ingredients.id',  ondelete="CASCADE"), primary_key=True)
+
 
 
 class Rating(Base):
     __tablename__ = "rating"
 
-    recipe_id = Column(Integer, ForeignKey('recipes.id'), primary_key=True)
-    owner_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    recipe_id = Column(Integer, ForeignKey('recipes.id',  ondelete="CASCADE"), primary_key=True)
+    owner_id = Column(Integer, ForeignKey('users.id',  ondelete="CASCADE"), primary_key=True)
     rate = Column(Float)
