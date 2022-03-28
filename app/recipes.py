@@ -13,12 +13,6 @@ db = SessionLocal()
 @router.post('/recipes', status_code=status.HTTP_201_CREATED)
 def add_recipe(recipe: RecipeCreate, current_user: UserOut = Depends(get_current_user)):
 
-    if len(recipe.name) < 3:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Name must be min 3 characters!")
-
-    if len(recipe.description) < 3:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Description must be min 3 characters!")
-
     all_names = recipe.ingredients.split()
     ingredient = []
     for name in all_names:
@@ -48,8 +42,8 @@ def get_all_recipes():
 
 @router.get('/recipes/{id}', status_code=status.HTTP_200_OK, response_model=RecipeList)
 def get_single_recipe(id: int, current_user: UserOut = Depends(get_current_user)):
-    single_recipe = db.query(models.Recipe).filter(models.Recipe.id == id, models.Recipe.owner_id == current_user.id).first()
-
+    single_recipe = db.query(models.Recipe).filter(models.Recipe.id == id,
+                                                   models.Recipe.owner_id == current_user.id).first()
 
     if single_recipe:
         return single_recipe
@@ -89,15 +83,14 @@ def delete_recipe(id:int, current_user: UserOut = Depends(get_current_user)):
 @router.get('/top-ingredients', status_code=status.HTTP_200_OK, response_model=List[Ingredient])
 def get_top_five_ingredients():
 
-    rez = db.query(models.Ingredient.name, func.count(models.Ingredient.name))\
+    result = db.query(models.Ingredient.name, func.count(models.Ingredient.name))\
         .join(models.RecipeIngredient, models.RecipeIngredient.ingredient_id == models.Ingredient.id)\
         .group_by(models.Ingredient.id).order_by(desc(func.count(models.Ingredient.name))).limit(5).all()
 
+    return result
 
-    return rez
 
-
-@router.post('/recipes/{id}/rate', status_code=status.HTTP_201_CREATED)
+@router.post('/recipes/rate', status_code=status.HTTP_201_CREATED)
 def add_rate(id: int, rating: RateCreate, current_user: UserOut = Depends(get_current_user)):
     if rating.rate not in range(1, 6):
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Rate must be 1-5, try again")
@@ -123,7 +116,4 @@ def get_avg_rate(id: int, current_user: UserOut = Depends(get_current_user)):
         return Rate(rate=avg[0])
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Recipe does not exist!")
-
-
-
 
