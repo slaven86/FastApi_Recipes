@@ -106,14 +106,16 @@ def add_rate(id: int, rating: RateCreate, current_user: UserOut = Depends(get_cu
 
 
 
-@router.get('/recipes/{id}/rate', status_code=status.HTTP_200_OK,response_model=Rate)
-def get_avg_rate(id: int, current_user: UserOut = Depends(get_current_user)):
-    single_recipe = db.query(models.Recipe).filter(models.Recipe.id == id,
-                                                   models.Recipe.owner_id == current_user.id).first()
+@router.get('/recipes/rate/avg', status_code=status.HTTP_200_OK,response_model=List[RateCreate])
+def get_avg_rate(current_user: UserOut = Depends(get_current_user)):
+    avg = db.query(models.Rating.recipe_id, func.avg(models.Rating.rate)).\
+          group_by(models.Rating.recipe_id).all()
 
-    if single_recipe:
-        avg = db.query(func.avg(models.Rating.rate)).filter(models.Rating.recipe_id == id).first()
-        return Rate(rate=avg[0])
-    else:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Recipe does not exist!")
+    RateCreate = []
+    for num in avg:
+        recipe_id = num[0]
+        rate = num[1]
+
+        RateCreate.append(models.Rating(recipe_id=recipe_id, rate=rate))
+    return RateCreate
 
