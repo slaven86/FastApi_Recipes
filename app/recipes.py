@@ -91,10 +91,10 @@ def get_top_five_ingredients():
 
 
 @router.post('/recipes/rate', status_code=status.HTTP_201_CREATED)
-def add_rate(id: int, rating: RateCreate, current_user: UserOut = Depends(get_current_user)):
+def add_rate(rating: RateCreate, current_user: UserOut = Depends(get_current_user)):
     if rating.rate not in range(1, 6):
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Rate must be 1-5, try again")
-    new_rate = models.Rating(recipe_id=id, rate=rating.rate, owner_id=current_user.id)
+    new_rate = models.Rating(recipe_id=rating.recipe_id, rate=rating.rate, owner_id=current_user.id)
     query = db.query(models.Recipe).filter(models.Recipe.owner_id == current_user.id,
                                            models.Recipe.id == rating.recipe_id).first()
     if query:
