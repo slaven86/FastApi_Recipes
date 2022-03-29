@@ -60,8 +60,18 @@ def update_recipe(id:int, recipe: RecipeCreate, current_user: UserOut = Depends(
     if not recipe_update:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Only owner can update this page!")
 
+    all_names = recipe.ingredients.split()
+    ingredient = []
+    for name in all_names:
+        result = db.query(models.Ingredient).filter(models.Ingredient.name == name).first()
+        if result is None:
+            ingredient.append(models.Ingredient(name=name))
+        else:
+            ingredient.append(result)
+
     recipe_update.name = recipe.name
     recipe_update.description = recipe.description
+    recipe_update.ingredients = ingredient
     db.commit()
     return {"msg": "Recipe is updated!"}
 
