@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, HTTPException, Depends
-from .schemas import RecipeCreate, UserOut, RecipeList, Ingredient, RateCreate, Rate
+from .schemas import RecipeCreate, UserOut, RecipeList, Ingredient, RateCreate
 from .token import get_current_user
 from . import models
 from .database import SessionLocal
@@ -102,7 +102,7 @@ def add_rate(rating: RateCreate, current_user: UserOut = Depends(get_current_use
     db.add(new_rate)
     db.commit()
     db.refresh(new_rate)
-    return {"msg": "Your rate added successfully"}
+    return {"msg": "Your rate add successfully"}
 
 
 

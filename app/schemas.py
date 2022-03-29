@@ -31,11 +31,8 @@ class UserOut(BaseModel):
 class Ingredient(BaseModel):
     name: str
 
-
-
     class Config:
         orm_mode = True
-
 
 
 
@@ -47,12 +44,6 @@ class RecipeCreate(BaseModel):
     class Config:
         orm_mode = True
 
-
-class Rate(BaseModel):
-    rate: float
-
-    class Config:
-        orm_mode = True
 
 
 class RecipeList(BaseModel):
@@ -77,6 +68,13 @@ class RateCreate(BaseModel):
     class Config:
         orm_mode = True
 
+
+
+class Rate(BaseModel):
+    rate: float
+
+    class Config:
+        orm_mode = True
 
 
 
