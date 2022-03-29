@@ -3,7 +3,6 @@ from fastapi.testclient import TestClient
 from .main import app
 
 
-
 client = TestClient(app)
 
 
@@ -59,6 +58,6 @@ def test_get_top_ingredients():
 def test_get_recipe_avg_rate():
     token = ''
     headers = {"Authorization": f"Bearer {token}"}
-    response = client.get('/recipes/1/rate', headers=headers)
+    response = client.get('/recipes/rate/avg', headers=headers)
     assert response.status_code == 200
 
