@@ -8,7 +8,7 @@ client = TestClient(app)
 
 
 def test_create_user():
-    data = {"first_name": "Bojan", "last_name": "Bojanic", "email": "bojan@bojan.com", "username": "bojan123", "password": "bojan123"}
+    data = {"first_name": "", "last_name": "", "email": "", "username": "", "password": ""}
     response = client.post('/users', json.dumps(data))
     assert response.status_code == 201
     assert response.json() == {"msg": "New user created!"}
@@ -18,7 +18,8 @@ def test_create_user():
 def test_create_recipe():
 
     data = {"name": "",
-            "description": ""
+            "description": "",
+            "ingredients": ""
             }
     token = ''
     headers = {"Authorization": f"Bearer {token}"}
@@ -45,7 +46,7 @@ def test_get_all_recipes():
 def test_delete_recipe():
     token = ''
     headers = {"Authorization": f"Bearer {token}"}
-    response = client.delete('/recipes/2', headers=headers)
+    response = client.delete('/recipes/1', headers=headers)
     assert response.status_code == 200
     assert response.json() == {"msg": "Recipe has been deleted!"}
 
